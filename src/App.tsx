@@ -1,4 +1,7 @@
+import { getToken } from "./lib/spotify";
+
 export default function App() {
+  getToken();
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       <main className="flex-1 p-8 mb-20">
