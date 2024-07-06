@@ -36,6 +36,7 @@ class SpotifyClient {
       headers: { Authorization: "Bearer " + this.token },
       params: { q: keyword, type: "track", limit, offset },
     });
+    console.log(response.data);
     return response.data.tracks;
   }
 }

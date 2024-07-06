@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Song, SpotifyTrackItem } from "./types/type";
 import { SearchInput } from "./components/SearchInput";
 import { Pagination } from "./components/Pagination";
+import { SearchResultHeader } from "./components/SearchResultHeader";
 
 const limit: number = 20;
 
@@ -17,6 +18,7 @@ export default function App() {
   const [volume, setVolume] = useState<number>(1);
   const [keyword, setKeyword] = useState<string>("");
   const [searchedSongs, setSearchedSongs] = useState<Song[] | null>(null);
+  const [searchedKeyword, setSearchedKeyword] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [hasNext, setHasNext] = useState<boolean>(false);
   const [hasPrev, setHasPrev] = useState<boolean>(false);
@@ -87,6 +89,7 @@ export default function App() {
 
   const searchSongs = async (page?: number) => {
     setIsLoading(true);
+    setSearchedKeyword(keyword);
     try {
       const offset = page ? (page - 1) * limit : 0;
       const result = await spotify.searchSongs(keyword, limit, offset);
@@ -134,9 +137,14 @@ export default function App() {
         </header>
         <SearchInput onInputChange={handleInputChange} onSubmit={searchSongs} />
         <section>
-          <h2 className="text-2xl font-semibold mb-5">
-            {isSearchedResult ? "Searched Songs" : "Popular Songs"}
-          </h2>
+          {isSearchedResult ? (
+            <SearchResultHeader
+              keyword={searchedKeyword}
+              totalResults={totalResults}
+            />
+          ) : (
+            <h2 className="text-2xl font-semibold mb-5 mr-2">Popular Songs</h2>
+          )}
           <SongList
             isLoading={isLoading}
             songs={isSearchedResult ? searchedSongs : popularSongs}
