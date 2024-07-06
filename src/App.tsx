@@ -4,6 +4,9 @@ import { Player } from "./components/Player";
 import { useEffect, useRef, useState } from "react";
 import { Song, SpotifyTrackItem } from "./types/type";
 import { SearchInput } from "./components/SearchInput";
+import { Pagination } from "./components/Pagination";
+
+const limit: number = 20;
 
 export default function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -14,6 +17,10 @@ export default function App() {
   const [volume, setVolume] = useState<number>(1);
   const [keyword, setKeyword] = useState<string>("");
   const [searchedSongs, setSearchedSongs] = useState<Song[] | null>(null);
+  const [page, setPage] = useState<number>(1);
+  const [hasNext, setHasNext] = useState<boolean>(false);
+  const [hasPrev, setHasPrev] = useState<boolean>(false);
+  const [totalResults, setTotalResults] = useState<number>(0);
   const isSearchedResult = searchedSongs !== null;
 
   const fetchPopularSongs = async () => {
@@ -78,23 +85,45 @@ export default function App() {
     setKeyword(event.target.value);
   };
 
-  const searchSongs = async (): Promise<void> => {
+  const searchSongs = async (page?: number) => {
     setIsLoading(true);
     try {
-      const result = await spotify.searchSongs(keyword);
-      console.log(result.items);
+      const offset = page ? (page - 1) * limit : 0;
+      const result = await spotify.searchSongs(keyword, limit, offset);
+      setHasNext(result.next !== null);
+      setHasPrev(result.previous !== null);
       if (result) {
         setSearchedSongs(result.items);
+        setTotalResults(result.total);
       } else {
         setSearchedSongs([]);
+        setTotalResults(0);
         console.log("No search results found");
       }
     } catch (error) {
       console.error("Failed to fetch search song:", error);
       setSearchedSongs([]);
+      setTotalResults(0);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const moveToNext = async () => {
+    const nextPage = page + 1;
+    await searchSongs(nextPage);
+    setPage(nextPage);
+  };
+
+  const moveToPrev = async () => {
+    const prevPage = page + 1;
+    await searchSongs(prevPage);
+    setPage(prevPage);
+  };
+
+  const handlePageChange = async (newPage: number) => {
+    setPage(newPage);
+    await searchSongs(newPage);
   };
 
   return (
@@ -113,6 +142,16 @@ export default function App() {
             songs={isSearchedResult ? searchedSongs : popularSongs}
             onSongSelected={handleSongSelected}
           />
+          {isSearchedResult && (
+            <Pagination
+              onPrev={hasPrev ? moveToPrev : null}
+              onNext={hasNext ? moveToNext : null}
+              page={page}
+              currentPage={page}
+              totalPages={Math.ceil(totalResults / limit)}
+              onPageChange={handlePageChange}
+            />
+          )}
         </section>
       </main>
       {selectedSong && (

@@ -33,5 +33,14 @@ export interface SpotifyTrackItem {
 
 export interface SearchInputProps {
   onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: () => Promise<void>;
+  onSubmit: (page?: number) => Promise<void>;
+}
+
+export interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPrev: (() => void) | null;
+  onNext: (() => void) | null;
+  page: number;
+  onPageChange: (page: number) => void;
 }

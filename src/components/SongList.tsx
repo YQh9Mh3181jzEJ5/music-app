@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { SongListProps } from "../types/type";
 
 export function SongList({ isLoading, songs, onSongSelected }: SongListProps) {
-  if (isLoading)
+  if (isLoading || !songs)
     return (
       <div className="inset-0 flex justify-center items-center">
         <FontAwesomeIcon icon={faSpinner} spin size="3x" />
