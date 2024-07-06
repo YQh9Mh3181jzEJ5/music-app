@@ -122,7 +122,11 @@ export function Player({
           <FontAwesomeIcon
             onClick={onButtonClick}
             icon={isPlay ? faStopCircle : faPlayCircle}
-            className="text-white text-3xl mx-2 h-[40px] w-[40px] cursor-pointer"
+            className={`text-white text-3xl mx-2 h-[40px] w-[40px] ${
+              song.preview_url !== null
+                ? "cursor-pointer"
+                : "opacity-50 cursor-not-allowed"
+            }`}
           />
         </div>
         <div className="flex items-center justify-end">
