@@ -36,12 +36,23 @@ export function Player({
       });
     }
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.code === "Space" && event.target === document.body) {
+        event.preventDefault();
+        onButtonClick();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
     return () => {
       if (sliderElement) {
         sliderElement.removeEventListener("wheel", handleWheel);
       }
+
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [volume, onVolumeChange]);
+  }, [volume, onVolumeChange, onButtonClick]);
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
@@ -68,8 +79,10 @@ export function Player({
     setEditValue(displayVolume.toString());
   };
 
-  const handleVolumeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const handleVolumeInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = event.target.value;
     if (/^\d*$/.test(value) && parseInt(value, 10) <= 100) {
       setEditValue(value);
     }
@@ -84,9 +97,9 @@ export function Player({
   };
 
   const handleVolumeInputKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>
+    event: React.KeyboardEvent<HTMLInputElement>
   ) => {
-    if (e.key === "Enter") {
+    if (event.key === "Enter") {
       handleVolumeInputBlur();
     }
   };
