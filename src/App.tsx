@@ -1,11 +1,15 @@
 import spotify from "./lib/spotify";
 import { SongList } from "./components/SongList";
-import { useEffect, useState } from "react";
+import { Player } from "./components/Player";
+import { useEffect, useRef, useState } from "react";
 import { Song, SpotifyTrackItem } from "./types/type";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [popularSongs, setPopularSongs] = useState<Song[]>([]);
+  const [isPlay, setIsPlay] = useState<boolean>(false);
+  const [selectedSong, setSelectedSong] = useState<Song | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const fetchPopularSongs = async () => {
     setIsLoading(true);
@@ -26,6 +30,36 @@ export default function App() {
     fetchPopularSongs();
   }, []);
 
+  const playSong = () => {
+    if (audioRef.current) {
+      audioRef.current.play();
+      setIsPlay(true);
+    }
+  };
+
+  const pauseSong = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlay(false);
+    }
+  };
+
+  const toggleSong = () => {
+    if (isPlay) {
+      pauseSong();
+    } else {
+      playSong();
+    }
+  };
+
+  const handleSongSelected = async (song: Song) => {
+    setSelectedSong(song);
+    if (audioRef.current) {
+      audioRef.current.src = song.preview_url;
+      playSong();
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       <main className="flex-1 p-8 mb-20">
@@ -34,9 +68,21 @@ export default function App() {
         </header>
         <section>
           <h2 className="text-2xl font-semibold mb-5">Popular Songs</h2>
-          <SongList isLoading={isLoading} songs={popularSongs} />
+          <SongList
+            isLoading={isLoading}
+            songs={popularSongs}
+            onSongSelected={handleSongSelected}
+          />
         </section>
       </main>
+      {selectedSong && (
+        <Player
+          song={selectedSong}
+          isPlay={isPlay}
+          onButtonClick={toggleSong}
+        />
+      )}
+      <audio ref={audioRef} />
     </div>
   );
 }
