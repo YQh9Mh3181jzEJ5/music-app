@@ -23,6 +23,8 @@ export interface PlayerProps {
   song: Song;
   isPlay: boolean;
   onButtonClick: () => void;
+  volume: number;
+  onVolumeChange: (volume: number) => void;
 }
 
 export interface SpotifyTrackItem {

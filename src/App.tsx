@@ -10,6 +10,7 @@ export default function App() {
   const [isPlay, setIsPlay] = useState<boolean>(false);
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [volume, setVolume] = useState<number>(1);
 
   const fetchPopularSongs = async () => {
     setIsLoading(true);
@@ -60,6 +61,13 @@ export default function App() {
     }
   };
 
+  const handleVolumeChange = (newVolume: number) => {
+    setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       <main className="flex-1 p-8 mb-20">
@@ -80,6 +88,8 @@ export default function App() {
           song={selectedSong}
           isPlay={isPlay}
           onButtonClick={toggleSong}
+          volume={volume}
+          onVolumeChange={handleVolumeChange}
         />
       )}
       <audio ref={audioRef} />
