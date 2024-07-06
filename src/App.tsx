@@ -6,6 +6,7 @@ import { Song, SpotifyTrackItem } from "./types/type";
 import { SearchInput } from "./components/SearchInput";
 import { Pagination } from "./components/Pagination";
 import { SearchResultHeader } from "./components/SearchResultHeader";
+import { createSecureContext } from "tls";
 
 const limit: number = 20;
 
@@ -129,11 +130,50 @@ export default function App() {
     await searchSongs(newPage);
   };
 
+  const resetToInitialState = (): void => {
+    setSearchedSongs(null);
+    setKeyword("");
+    setSearchedKeyword("");
+    setPage(1);
+  };
+
+  const PopularSongsHeader: React.FC = () => {
+    const currentDate = new Date();
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const formattedDate = `${
+      monthNames[currentDate.getMonth()]
+    } ${currentDate.getFullYear()}`;
+
+    return (
+      <h2 className="text-2xl font-semibold mb-5 flex items-center">
+        <span className="mr-2">Popular Songs</span>
+        <span className="text-lg font-normal text-gray-400">
+          ({formattedDate})
+        </span>
+      </h2>
+    );
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
-      <main className="flex-1 p-8 mb-20">
+      <main className="flex-1 p-8 pb-20">
         <header className="flex justify-between items-center mb-10">
-          <h1 className="text-4xl font-bold ">Music App</h1>
+          <h1 onClick={resetToInitialState} className="text-4xl font-bold">
+            Music App
+          </h1>
         </header>
         <SearchInput onInputChange={handleInputChange} onSubmit={searchSongs} />
         <section>
@@ -141,9 +181,10 @@ export default function App() {
             <SearchResultHeader
               keyword={searchedKeyword}
               totalResults={totalResults}
+              onBackToPopular={resetToInitialState}
             />
           ) : (
-            <h2 className="text-2xl font-semibold mb-5 mr-2">Popular Songs</h2>
+            <PopularSongsHeader />
           )}
           <SongList
             isLoading={isLoading}
@@ -161,7 +202,11 @@ export default function App() {
             />
           )}
         </section>
+        <footer className="py-8 border-t border-gray-700 mt-8">
+          <p className="text-center text-gray-400">Music App © 2024</p>
+        </footer>
       </main>
+
       {selectedSong && (
         <Player
           song={selectedSong}
