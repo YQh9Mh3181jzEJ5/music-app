@@ -16,7 +16,7 @@ export interface Song {
 
 export interface SongListProps {
   isLoading: boolean;
-  songs: Song[];
+  songs: Song[] | null;
   onSongSelected: (song: Song) => void;
 }
 export interface PlayerProps {
@@ -29,4 +29,9 @@ export interface PlayerProps {
 
 export interface SpotifyTrackItem {
   track: Song;
+}
+
+export interface SearchInputProps {
+  onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSubmit: () => Promise<void>;
 }
