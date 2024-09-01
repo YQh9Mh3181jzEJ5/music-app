@@ -18,12 +18,12 @@ URL: https://spotify-music-app-xi.vercel.app/
 
 # 🛠️ 使用技術
 
-React
-TypeScript
-Vite
-Tailwind CSS
-Spotify API
-Wavesurfer.js
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Spotify API
+- Wavesurfer.js
 
 ## 💻 使用方法
 
