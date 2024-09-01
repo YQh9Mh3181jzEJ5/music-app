@@ -1,30 +1,25 @@
-# React + TypeScript + Vite
+![image](https://github.com/user-attachments/assets/12e44512-5237-4e7f-a5ff-b50d8215f28d)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![image](https://github.com/user-attachments/assets/eedd34d2-8359-4928-ae1e-e18bfb34f084)
 
-Currently, two official plugins are available:
+URL: https://spotify-music-app-xi.vercel.app/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+🎵 Music App
+このプロジェクトは、Spotify API を使用して人気の曲を表示し、検索や再生機能を提供する React アプリケーションです。
 
-## Expanding the ESLint configuration
+🚀 主な機能
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+🔍 曲の検索機能
+🎧 曲のプレビュー再生
+📊 人気曲のリスト表示
+🖼️ アルバムアートワークの表示
 
-- Configure the top-level `parserOptions` property like this:
+🛠️ 使用技術
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+React
+TypeScript
+Vite
+Tailwind CSS
+Spotify API
+Wavesurfer.js
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
