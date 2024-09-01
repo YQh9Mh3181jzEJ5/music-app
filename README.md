@@ -3,8 +3,6 @@
 
 ![image](https://github.com/user-attachments/assets/eedd34d2-8359-4928-ae1e-e18bfb34f084)
 
-URL: https://spotify-music-app-xi.vercel.app/
-
 ## 🎵 プロジェクト概要
 
 このプロジェクトは、Spotify API を使用して人気の曲を表示し、検索や再生機能を提供する React アプリケーションです。
@@ -32,7 +30,7 @@ URL: https://spotify-music-app-xi.vercel.app/
 
 ## デプロイ情報 🌐
 
-このプロジェクトは Vercel にデプロイされています。
+このプロジェクトは Vercel にデプロイ予定です。
 
 ## 今後の改善点 🔧
 
