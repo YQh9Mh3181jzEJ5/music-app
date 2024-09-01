@@ -3,9 +3,14 @@ import axios from "axios";
 class SpotifyClient {
   private token: string | null = null;
   private tokenExpirationTime: number = 0;
+  private readonly TOKEN_REFRESH_MARGIN = 5 * 60 * 1000;
 
   private async getToken() {
-    if (this.token && Date.now() < this.tokenExpirationTime) {
+    const now = Date.now();
+    if (
+      this.token &&
+      now + this.TOKEN_REFRESH_MARGIN < this.tokenExpirationTime
+    ) {
       return this.token;
     }
     try {
@@ -23,7 +28,11 @@ class SpotifyClient {
         }
       );
       this.token = response.data.access_token;
-      this.tokenExpirationTime = Date.now() + response.data.expires_in * 1000;
+      this.tokenExpirationTime =
+        Date.now() +
+        response.data.expires_in * 1000 -
+        this.TOKEN_REFRESH_MARGIN;
+
       return this.token;
     } catch (error) {
       console.error("Error getting token:", error);
