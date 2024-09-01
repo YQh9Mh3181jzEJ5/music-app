@@ -1,23 +1,27 @@
+// src/components/Pagination.tsx
+import React from "react";
 import { PaginationProps } from "../types/type";
 import { getPageNumbers } from "../utils/getPage";
+import Button from "./ common/button/Button";
 
-export function Pagination({
+export const Pagination: React.FC<PaginationProps> = ({
   onPrev,
   onNext,
   currentPage,
   totalPages,
   onPageChange,
-}: PaginationProps) {
+}) => {
   const pageNumbers = getPageNumbers(currentPage, totalPages);
+
   return (
     <div className="mt-8 flex justify-center items-center space-x-2">
-      <button
+      <Button
         disabled={onPrev === null}
         onClick={onPrev || undefined}
-        className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        variant="secondary"
       >
         Previous
-      </button>
+      </Button>
       {pageNumbers.map((number, index) => (
         <button
           key={index}
@@ -35,13 +39,13 @@ export function Pagination({
           {number}
         </button>
       ))}
-      <button
+      <Button
         disabled={onNext === null}
         onClick={onNext || undefined}
-        className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        variant="secondary"
       >
         Next
-      </button>
+      </Button>
     </div>
   );
-}
+};

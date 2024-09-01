@@ -1,6 +1,6 @@
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { SearchInputProps } from "../types/type";
+import { SearchInputProps } from "../../types/type";
 
 export function SearchInput({ onInputChange, onSubmit }: SearchInputProps) {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {

@@ -1,6 +1,6 @@
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { SongListProps } from "../types/type";
+import { SongListProps } from "../../types/type";
 
 export function SongList({ isLoading, songs, onSongSelected }: SongListProps) {
   if (isLoading || !songs)
@@ -11,7 +11,7 @@ export function SongList({ isLoading, songs, onSongSelected }: SongListProps) {
     );
 
   return (
-    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 bg-red">
       {songs.map((song) => {
         return (
           <div

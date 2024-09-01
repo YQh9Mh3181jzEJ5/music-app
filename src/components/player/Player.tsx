@@ -7,7 +7,7 @@ import {
   faVolumeMute,
   faVolumeUp,
 } from "@fortawesome/free-solid-svg-icons";
-import { PlayerProps } from "../types/type";
+import { PlayerProps } from "../../types/type";
 
 export function Player({
   song,
