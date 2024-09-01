@@ -1,12 +1,13 @@
+import React, { useEffect, useRef, useState } from "react";
+import WaveSurfer from "wavesurfer.js";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlayCircle,
   faStopCircle,
   faVolumeMute,
   faVolumeUp,
 } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PlayerProps } from "../types/type";
-import { useEffect, useRef, useState } from "react";
 
 export function Player({
   song,
@@ -15,27 +16,81 @@ export function Player({
   volume,
   onVolumeChange,
 }: PlayerProps) {
-  const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [editValue, setEditValue] = useState<string>("");
-  const volumeSliderRef = useRef<HTMLInputElement>(null);
-  const [previousVolume, setPreviousVolume] = useState<number>(volume);
+  const waveformRef = useRef<HTMLDivElement>(null);
+  const wavesurfer = useRef<WaveSurfer | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loadError, setLoadError] = useState<boolean>(false);
 
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const delta = e.deltaY > 0 ? -0.05 : 0.05;
-      const newVolume = Math.max(0, Math.min(1, volume + delta));
-      onVolumeChange(newVolume);
-    };
+  const initializeWaveSurfer = () => {
+    if (waveformRef.current && !wavesurfer.current) {
+      wavesurfer.current = WaveSurfer.create({
+        container: waveformRef.current,
+        waveColor: "skyblue",
+        progressColor: "orange",
+        cursorColor: "white",
+        height: 100,
+        barWidth: 2,
+        barGap: 2,
+        barRadius: 2,
+      });
 
-    const sliderElement = volumeSliderRef.current;
-    if (sliderElement) {
-      sliderElement.addEventListener("wheel", handleWheel, {
-        passive: false,
+      wavesurfer.current.on("ready", () => {
+        console.log("WaveSurfer is ready"); // デバッグログ
+        setDuration(wavesurfer.current!.getDuration());
+        setIsLoading(false);
+        setLoadError(false);
+      });
+
+      wavesurfer.current.on("error", (error) => {
+        console.error("WaveSurfer error:", error); // エラーログ
+        setLoadError(true);
+        setIsLoading(false);
+      });
+
+      wavesurfer.current.on("audioprocess", () => {
+        setCurrentTime(wavesurfer.current!.getCurrentTime());
       });
     }
+  };
 
+  useEffect(() => {
+    initializeWaveSurfer();
+    return () => {
+      if (wavesurfer.current) {
+        wavesurfer.current.destroy();
+        wavesurfer.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (wavesurfer.current) {
+      setIsLoading(true);
+      setLoadError(false);
+      console.log("Loading new song:", song.preview_url); // デバッグログ
+      wavesurfer.current.load(song.preview_url);
+    }
+  }, [song]);
+
+  useEffect(() => {
+    if (wavesurfer.current) {
+      wavesurfer.current.setVolume(volume);
+    }
+  }, [volume]);
+
+  useEffect(() => {
+    if (wavesurfer.current) {
+      if (isPlay) {
+        wavesurfer.current.play();
+      } else {
+        wavesurfer.current.pause();
+      }
+    }
+  }, [isPlay]);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.code === "Space" && event.target === document.body) {
         event.preventDefault();
@@ -44,70 +99,28 @@ export function Player({
     };
 
     window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onButtonClick]);
 
-    return () => {
-      if (sliderElement) {
-        sliderElement.removeEventListener("wheel", handleWheel);
-      }
-
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [volume, onVolumeChange, onButtonClick]);
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseFloat(e.target.value);
-    onVolumeChange(newVolume);
-
-    setIsMuted(false);
-    setPreviousVolume(newVolume);
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
-  const toggleMute = (): void => {
-    if (isMuted) {
-      onVolumeChange(previousVolume);
-    } else {
-      setPreviousVolume(volume);
-      onVolumeChange(0);
-    }
-    setIsMuted(!isMuted);
-  };
-
-  const displayVolume = Math.round(volume * 100);
-
-  const handleVolumeClick = (): void => {
-    setIsEditing(true);
-    setEditValue(displayVolume.toString());
-  };
-
-  const handleVolumeInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = event.target.value;
-    if (/^\d*$/.test(value) && parseInt(value, 10) <= 100) {
-      setEditValue(value);
-    }
-  };
-
-  const handleVolumeInputBlur = (): void => {
-    setIsEditing(false);
-    if (editValue !== "") {
-      const newVolume = parseInt(editValue, 10) / 100;
-      onVolumeChange(newVolume);
-    }
-  };
-
-  const handleVolumeInputKeyDown = (
-    event: React.KeyboardEvent<HTMLInputElement>
-  ) => {
-    if (event.key === "Enter") {
-      handleVolumeInputBlur();
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (wavesurfer.current) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percent = x / rect.width;
+      wavesurfer.current.seekTo(percent);
     }
   };
 
   return (
     <footer className="fixed bottom-0 w-full bg-gray-800 p-5">
-      <div className="grid grid-cols-3">
-        <div className="flex items-center">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center w-1/4">
           <img
             src={song.album.images[0].url}
             alt="thumbnail"
@@ -118,52 +131,45 @@ export function Player({
             <p className="text-xs text-gray-400">{song.artists[0].name}</p>
           </div>
         </div>
-        <div className="flex items-center justify-center">
+        <div className="flex items-center w-1/2">
           <FontAwesomeIcon
             onClick={onButtonClick}
             icon={isPlay ? faStopCircle : faPlayCircle}
-            className={`text-white text-3xl mx-2 h-[40px] w-[40px] ${
-              song.preview_url !== null
-                ? "cursor-pointer"
-                : "opacity-50 cursor-not-allowed"
-            }`}
+            className="text-white text-3xl cursor-pointer mr-4"
           />
+          <div className="flex-grow">
+            {isLoading && <p className="text-center">Loading...</p>}
+            {loadError && (
+              <p className="text-center text-red-500">Failed to load audio</p>
+            )}
+            {!isLoading && !loadError && (
+              <div className="flex justify-between text-xs mt-1">
+                <span>{formatTime(currentTime)}</span>
+                <div
+                  ref={waveformRef}
+                  className={`w-full ${isLoading ? "opacity-50" : ""}`}
+                  onClick={handleSeek}
+                />
+                <span>{formatTime(duration)}</span>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="flex items-center justify-end">
+        <div className="flex items-center w-1/4 justify-end">
           <FontAwesomeIcon
-            onClick={toggleMute}
-            icon={isMuted || volume === 0 ? faVolumeMute : faVolumeUp}
+            onClick={() => onVolumeChange(volume === 0 ? 1 : 0)}
+            icon={volume === 0 ? faVolumeMute : faVolumeUp}
             className="text-white text-xl mr-2 cursor-pointer"
           />
           <input
-            ref={volumeSliderRef}
             type="range"
             min="0"
             max="1"
             step="0.01"
             value={volume}
-            onChange={handleVolumeChange}
-            className="w-24 mr-1"
-            aria-label="Volume control"
+            onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
+            className="w-24"
           />
-          {isEditing ? (
-            <input
-              type="text"
-              value={editValue}
-              onChange={handleVolumeInputChange}
-              onBlur={handleVolumeInputBlur}
-              onKeyDown={handleVolumeInputKeyDown}
-              className="bg-gray-700 text-white text-sm w-12 px-1 rounded"
-              autoFocus
-            />
-          ) : (
-            <span
-              className="text-white text-sm w-12 cursor-pointer"
-              onClick={handleVolumeClick}
-            >
-              {displayVolume}
-            </span>
-          )}
         </div>
       </div>
     </footer>

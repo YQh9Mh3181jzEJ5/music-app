@@ -6,7 +6,6 @@ import { Song, SpotifyTrackItem } from "./types/type";
 import { SearchInput } from "./components/SearchInput";
 import { Pagination } from "./components/Pagination";
 import { SearchResultHeader } from "./components/SearchResultHeader";
-import { createSecureContext } from "tls";
 
 const limit: number = 20;
 

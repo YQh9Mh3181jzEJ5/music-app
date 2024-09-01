@@ -21,7 +21,7 @@ export const SearchResultHeader: React.FC<SearchResultHeaderProps> = ({
       </h2>
       <button
         onClick={onBackToPopular}
-        className="text-blue-500 hover:text-blue-700 text-lg"
+        className="bg-gray-50 py-2 px-4 rounded-sm text-slate-800 hover:text-slate-400 text-lg"
       >
         Back to Popular Songs
       </button>
