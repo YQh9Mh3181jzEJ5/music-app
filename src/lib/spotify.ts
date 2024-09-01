@@ -1,45 +1,52 @@
 import axios from "axios";
 
 class SpotifyClient {
-  private token?: string;
+  private token: string | null = null;
+  private tokenExpirationTime: number = 0;
 
-  static async initialize() {
+  private async getToken() {
+    if (this.token && Date.now() < this.tokenExpirationTime) {
+      return this.token;
+    }
+
     const response = await axios.post(
       "https://accounts.spotify.com/api/token",
-      {
+      new URLSearchParams({
         grant_type: "client_credentials",
         client_id: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
         client_secret: import.meta.env.VITE_SPOTIFY_CLIENT_SECRET,
-      },
+      }),
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
       }
     );
-    const spotify = new SpotifyClient();
-    spotify.token = response.data.access_token;
-    return spotify;
+
+    this.token = response.data.access_token;
+    // トークンの有効期限を設定（1時間 = 3600秒）
+    this.tokenExpirationTime = Date.now() + response.data.expires_in * 1000;
+    return this.token;
   }
 
   async getPopularSongs() {
+    const token = await this.getToken();
     const response = await axios.get(
       "https://api.spotify.com/v1/playlists/37i9dQZF1DX9vYRBO9gjDe/tracks",
-      { headers: { Authorization: "Bearer " + this.token } }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
-    console.log(response);
     return response.data;
   }
 
   async searchSongs(keyword: string, limit: number, offset: number) {
+    const token = await this.getToken();
     const response = await axios.get("https://api.spotify.com/v1/search", {
-      headers: { Authorization: "Bearer " + this.token },
+      headers: { Authorization: `Bearer ${token}` },
       params: { q: keyword, type: "track", limit, offset },
     });
-    console.log(response.data);
     return response.data.tracks;
   }
 }
 
-const spotify = await SpotifyClient.initialize();
+const spotify = new SpotifyClient();
 export default spotify;
