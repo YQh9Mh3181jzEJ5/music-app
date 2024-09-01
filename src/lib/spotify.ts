@@ -8,25 +8,27 @@ class SpotifyClient {
     if (this.token && Date.now() < this.tokenExpirationTime) {
       return this.token;
     }
-
-    const response = await axios.post(
-      "https://accounts.spotify.com/api/token",
-      new URLSearchParams({
-        grant_type: "client_credentials",
-        client_id: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
-        client_secret: import.meta.env.VITE_SPOTIFY_CLIENT_SECRET,
-      }),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
-    );
-
-    this.token = response.data.access_token;
-    // トークンの有効期限を設定（1時間 = 3600秒）
-    this.tokenExpirationTime = Date.now() + response.data.expires_in * 1000;
-    return this.token;
+    try {
+      const response = await axios.post(
+        "https://accounts.spotify.com/api/token",
+        new URLSearchParams({
+          grant_type: "client_credentials",
+          client_id: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
+          client_secret: import.meta.env.VITE_SPOTIFY_CLIENT_SECRET,
+        }),
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
+      this.token = response.data.access_token;
+      this.tokenExpirationTime = Date.now() + response.data.expires_in * 1000;
+      return this.token;
+    } catch (error) {
+      console.error("Error getting token:", error);
+      throw error;
+    }
   }
 
   async getPopularSongs() {
