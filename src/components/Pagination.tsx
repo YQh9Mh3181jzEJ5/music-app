@@ -1,4 +1,3 @@
-// src/components/Pagination.tsx
 import React from "react";
 import { PaginationProps } from "../types/type";
 import { getPageNumbers } from "../utils/getPage";
